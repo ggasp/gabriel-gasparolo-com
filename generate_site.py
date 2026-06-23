@@ -26,7 +26,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 PUBLIC_DIR = ROOT / "public"
-ASSET_VERSION = "202606230640"
+ASSET_VERSION = "202606230702"
 
 
 @dataclass(frozen=True)
@@ -351,6 +351,54 @@ def render_structured_data() -> str:
     return f'    <script type="application/ld+json">\n{json_ld}\n    </script>\n'
 
 
+def render_signal_json(language: str) -> str:
+    descriptions = {
+        "en": (
+            "Technology executive working on telecom infrastructure, enterprise "
+            "architecture, software delivery, automation, data, and AI."
+        ),
+        "es": (
+            "Ejecutivo de tecnología trabajando en infraestructura telco, arquitectura "
+            "empresarial, desarrollo de software, automatización, datos e IA."
+        ),
+    }
+    knows_about = {
+        "en": [
+            "telecommunications",
+            "fiber infrastructure",
+            "enterprise architecture",
+            "API platforms",
+            "automation",
+            "artificial intelligence",
+        ],
+        "es": [
+            "telecomunicaciones",
+            "infraestructura de fibra",
+            "arquitectura empresarial",
+            "plataformas API",
+            "automatización",
+            "inteligencia artificial",
+        ],
+    }
+    data = {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Gabriel Gasparolo",
+        "jobTitle": "CIO",
+        "worksFor": {
+            "@type": "Organization",
+            "name": "ON*NET FIBRA",
+        },
+        "description": descriptions[language],
+        "knowsAbout": knows_about[language],
+        "sameAs": [
+            "https://www.linkedin.com/in/gasparolo/",
+            "https://x.com/ggasp",
+        ],
+    }
+    return html.escape(json.dumps(data, ensure_ascii=False, indent=2))
+
+
 def render_language_script() -> str:
     return """    <script>
       (() => {
@@ -403,6 +451,8 @@ def render_site(linkedin_posts: list[LinkItem], x_articles: list[LinkItem]) -> s
     posts_html = render_items(selected)
     language_script = render_language_script()
     structured_data = render_structured_data()
+    signal_json_en = render_signal_json("en")
+    signal_json_es = render_signal_json("es")
     return f"""<!doctype html>
 <html lang="en">
   <head>
@@ -528,40 +578,14 @@ def render_site(linkedin_posts: list[LinkItem], x_articles: list[LinkItem]) -> s
 
       <section class="section" aria-labelledby="signal">
         <h2 id="signal"><span data-lang="en">[Signal]</span><span data-lang="es">[Señal]</span></h2>
-        <div class="terminal" data-lang="en" role="img" aria-label="A Dracula themed system note describing Gabriel's work focus">
-          <div class="terminal-row">
-            <span class="prompt">focus</span>
-            <span class="operator">=</span>
-            <span class="value">"technology that survives contact with operations"</span>
-          </div>
-          <div class="terminal-row">
-            <span class="prompt">method</span>
-            <span class="operator">=</span>
-            <span class="value">["strategy", "architecture", "execution", "learning"]</span>
-          </div>
-          <div class="terminal-row">
-            <span class="prompt">bias</span>
-            <span class="operator">=</span>
-            <span class="value">"execution with taste"</span>
-          </div>
-        </div>
-        <div class="terminal" data-lang="es" role="img" aria-label="Nota de sistema con foco de trabajo de Gabriel">
-          <div class="terminal-row">
-            <span class="prompt">foco</span>
-            <span class="operator">=</span>
-            <span class="value">"tecnología que sobrevive a la operación"</span>
-          </div>
-          <div class="terminal-row">
-            <span class="prompt">método</span>
-            <span class="operator">=</span>
-            <span class="value">["estrategia", "arquitectura", "ejecución", "aprendizaje"]</span>
-          </div>
-          <div class="terminal-row">
-            <span class="prompt">sesgo</span>
-            <span class="operator">=</span>
-            <span class="value">"ejecutar con criterio"</span>
-          </div>
-        </div>
+        <p data-lang="en">
+          A small structured signal for people, crawlers, APIs, and LLMs.
+        </p>
+        <p data-lang="es">
+          Una pequeña señal estructurada para personas, crawlers, APIs y LLMs.
+        </p>
+        <pre class="terminal json-signal" data-lang="en" aria-label="JSON-LD signal for Gabriel Gasparolo"><code>{signal_json_en}</code></pre>
+        <pre class="terminal json-signal" data-lang="es" aria-label="Señal JSON-LD para Gabriel Gasparolo"><code>{signal_json_es}</code></pre>
       </section>
 
       <section class="section contact" aria-labelledby="contact">

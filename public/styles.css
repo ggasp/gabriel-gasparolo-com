@@ -292,6 +292,17 @@ p {
   white-space: nowrap;
 }
 
+.json-signal {
+  margin: 16px 0 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  white-space: pre;
+}
+
+.json-signal code {
+  color: rgba(248, 248, 242, 0.92);
+}
+
 .prompt {
   color: var(--green);
 }
