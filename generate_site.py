@@ -26,7 +26,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 PUBLIC_DIR = ROOT / "public"
-ASSET_VERSION = "202606230702"
+ASSET_VERSION = "202606230712"
 
 
 @dataclass(frozen=True)
@@ -396,7 +396,30 @@ def render_signal_json(language: str) -> str:
             "https://x.com/ggasp",
         ],
     }
-    return html.escape(json.dumps(data, ensure_ascii=False, indent=2))
+    return highlight_json(json.dumps(data, ensure_ascii=False, indent=2))
+
+
+def highlight_json(json_text: str) -> str:
+    def highlight_punctuation(text: str) -> str:
+        escaped = html.escape(text)
+        return re.sub(
+            r"([{}\[\]:,])",
+            r'<span class="json-punctuation">\1</span>',
+            escaped,
+        )
+
+    parts: list[str] = []
+    position = 0
+    for match in re.finditer(r'"(?:\\.|[^"\\])*"', json_text):
+        parts.append(highlight_punctuation(json_text[position : match.start()]))
+        lookahead = json_text[match.end() :]
+        token_class = "json-key" if re.match(r"\s*:", lookahead) else "json-string"
+        parts.append(
+            f'<span class="{token_class}">{html.escape(match.group(0))}</span>'
+        )
+        position = match.end()
+    parts.append(highlight_punctuation(json_text[position:]))
+    return "".join(parts)
 
 
 def render_language_script() -> str:

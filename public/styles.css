@@ -303,6 +303,18 @@ p {
   color: rgba(248, 248, 242, 0.92);
 }
 
+.json-key {
+  color: var(--cyan);
+}
+
+.json-string {
+  color: var(--yellow);
+}
+
+.json-punctuation {
+  color: var(--pink);
+}
+
 .prompt {
   color: var(--green);
 }
