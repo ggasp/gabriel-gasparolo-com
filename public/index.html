@@ -18,7 +18,7 @@
     <meta name="twitter:card" content="summary">
     <title>Gabriel Gasparolo</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=202606230640">
     <script>
       (() => {
         const supported = new Set(["en", "es"]);
@@ -40,6 +40,9 @@
           const lang = supported.has(language) ? language : inferred;
           document.documentElement.lang = lang;
           document.body.dataset.language = lang;
+          document.querySelectorAll("[data-lang]").forEach(element => {
+            element.style.display = element.dataset.lang === lang ? "" : "none";
+          });
           try {
             localStorage.setItem("siteLanguage", lang);
           } catch {

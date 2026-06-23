@@ -26,6 +26,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 PUBLIC_DIR = ROOT / "public"
+ASSET_VERSION = "202606230640"
 
 
 @dataclass(frozen=True)
@@ -312,6 +313,9 @@ def render_language_script() -> str:
           const lang = supported.has(language) ? language : inferred;
           document.documentElement.lang = lang;
           document.body.dataset.language = lang;
+          document.querySelectorAll("[data-lang]").forEach(element => {
+            element.style.display = element.dataset.lang === lang ? "" : "none";
+          });
           try {
             localStorage.setItem("siteLanguage", lang);
           } catch {
@@ -358,7 +362,7 @@ def render_site(linkedin_posts: list[LinkItem], x_articles: list[LinkItem]) -> s
     <meta name="twitter:card" content="summary">
     <title>Gabriel Gasparolo</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v={ASSET_VERSION}">
 {language_script}
   </head>
   <body data-language="en">
