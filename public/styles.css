@@ -119,15 +119,6 @@ a:focus-visible {
   background: var(--green);
 }
 
-[data-lang] {
-  display: none;
-}
-
-body[data-language="en"] [data-lang="en"],
-body[data-language="es"] [data-lang="es"] {
-  display: revert;
-}
-
 .intro {
   min-height: 42vh;
   display: grid;
@@ -315,6 +306,25 @@ p {
 
 .contact {
   padding-bottom: 0;
+}
+
+[data-lang] {
+  display: none !important;
+}
+
+body[data-language="en"] [data-lang="en"],
+body[data-language="es"] [data-lang="es"] {
+  display: revert !important;
+}
+
+body[data-language="en"] .plain-list[data-lang="en"],
+body[data-language="es"] .plain-list[data-lang="es"] {
+  display: grid !important;
+}
+
+body[data-language="en"] .terminal[data-lang="en"],
+body[data-language="es"] .terminal[data-lang="es"] {
+  display: block !important;
 }
 
 @media (max-width: 560px) {
