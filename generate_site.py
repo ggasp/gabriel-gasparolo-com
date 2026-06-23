@@ -291,6 +291,66 @@ def render_items(items: list[LinkItem]) -> str:
     return "\n".join(lines)
 
 
+def render_structured_data() -> str:
+    data = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "WebSite",
+                "@id": "https://gabriel.gasparolo.com/#website",
+                "url": "https://gabriel.gasparolo.com/",
+                "name": "Gabriel Gasparolo",
+                "inLanguage": ["en", "es"],
+            },
+            {
+                "@type": "ProfilePage",
+                "@id": "https://gabriel.gasparolo.com/#profile",
+                "url": "https://gabriel.gasparolo.com/",
+                "name": "Gabriel Gasparolo",
+                "isPartOf": {"@id": "https://gabriel.gasparolo.com/#website"},
+                "about": {"@id": "https://gabriel.gasparolo.com/#person"},
+                "inLanguage": ["en", "es"],
+            },
+            {
+                "@type": "Person",
+                "@id": "https://gabriel.gasparolo.com/#person",
+                "name": "Gabriel Gasparolo",
+                "givenName": "Gabriel",
+                "familyName": "Gasparolo",
+                "jobTitle": "CIO",
+                "worksFor": {"@id": "https://www.onnetfibra.cl/#organization"},
+                "description": (
+                    "Technology executive focused on telecom infrastructure, "
+                    "enterprise architecture, software delivery, data, automation, and AI."
+                ),
+                "knowsAbout": [
+                    "telecommunications",
+                    "fiber infrastructure",
+                    "enterprise architecture",
+                    "API platforms",
+                    "software delivery",
+                    "digital transformation",
+                    "automation",
+                    "artificial intelligence",
+                    "data platforms",
+                ],
+                "sameAs": [
+                    "https://www.linkedin.com/in/gasparolo/",
+                    "https://x.com/ggasp",
+                ],
+            },
+            {
+                "@type": "Organization",
+                "@id": "https://www.onnetfibra.cl/#organization",
+                "name": "ON*NET FIBRA",
+                "url": "https://www.onnetfibra.cl/",
+            },
+        ],
+    }
+    json_ld = json.dumps(data, ensure_ascii=False, indent=6)
+    return f'    <script type="application/ld+json">\n{json_ld}\n    </script>\n'
+
+
 def render_language_script() -> str:
     return """    <script>
       (() => {
@@ -342,6 +402,7 @@ def render_site(linkedin_posts: list[LinkItem], x_articles: list[LinkItem]) -> s
     selected = linkedin_posts + x_articles
     posts_html = render_items(selected)
     language_script = render_language_script()
+    structured_data = render_structured_data()
     return f"""<!doctype html>
 <html lang="en">
   <head>
@@ -358,11 +419,13 @@ def render_site(linkedin_posts: list[LinkItem], x_articles: list[LinkItem]) -> s
       content="Technology executive focused on digital transformation, architecture, AI leverage, and resilient systems."
     >
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://gasparolo.com">
+    <meta property="og:url" content="https://gabriel.gasparolo.com/">
     <meta name="twitter:card" content="summary">
     <title>Gabriel Gasparolo</title>
+    <link rel="canonical" href="https://gabriel.gasparolo.com/">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="styles.css?v={ASSET_VERSION}">
+{structured_data}
 {language_script}
   </head>
   <body data-language="en">
