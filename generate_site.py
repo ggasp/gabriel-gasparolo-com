@@ -290,9 +290,54 @@ def render_items(items: list[LinkItem]) -> str:
     return "\n".join(lines)
 
 
+def render_language_script() -> str:
+    return """    <script>
+      (() => {
+        const supported = new Set(["en", "es"]);
+        const browserLanguages = navigator.languages || [navigator.language || ""];
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+        let stored = "";
+        try {
+          stored = localStorage.getItem("siteLanguage") || "";
+        } catch {
+          stored = "";
+        }
+        const inferred =
+          browserLanguages.some(lang => lang.toLowerCase().startsWith("es")) ||
+          /America\\/(Santiago|Buenos_Aires|Argentina|Cordoba)/.test(timeZone)
+            ? "es"
+            : "en";
+
+        function setLanguage(language) {
+          const lang = supported.has(language) ? language : inferred;
+          document.documentElement.lang = lang;
+          document.body.dataset.language = lang;
+          try {
+            localStorage.setItem("siteLanguage", lang);
+          } catch {
+            /* Private browsing can disable storage; the selector still works. */
+          }
+          document.querySelectorAll("[data-language-option]").forEach(button => {
+            const active = button.dataset.languageOption === lang;
+            button.setAttribute("aria-pressed", active ? "true" : "false");
+          });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+          document.querySelectorAll("[data-language-option]").forEach(button => {
+            button.addEventListener("click", () => setLanguage(button.dataset.languageOption));
+          });
+          setLanguage(stored || inferred);
+        });
+      })();
+    </script>
+"""
+
+
 def render_site(linkedin_posts: list[LinkItem], x_articles: list[LinkItem]) -> str:
     selected = linkedin_posts + x_articles
     posts_html = render_items(selected)
+    language_script = render_language_script()
     return f"""<!doctype html>
 <html lang="en">
   <head>
@@ -314,9 +359,14 @@ def render_site(linkedin_posts: list[LinkItem], x_articles: list[LinkItem]) -> s
     <title>Gabriel Gasparolo</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="styles.css">
+{language_script}
   </head>
-  <body>
+  <body data-language="en">
     <main class="page" aria-label="Personal site">
+      <nav class="language-switcher" aria-label="Language">
+        <button type="button" data-language-option="es" aria-pressed="false">ES</button>
+        <button type="button" data-language-option="en" aria-pressed="false">EN</button>
+      </nav>
       <section class="intro" aria-labelledby="name">
         <p class="eyebrow">gasparolo.com</p>
         <h1 id="name" class="sr-only">Gabriel Gasparolo</h1>
@@ -333,50 +383,80 @@ def render_site(linkedin_posts: list[LinkItem], x_articles: list[LinkItem]) -> s
 <span class="ascii-cyan">██║   ██║██╔══██║╚════██║██╔═══╝ ██╔══██║██╔══██╗██║   ██║██║     ██║   ██║</span>
 <span class="ascii-green">╚██████╔╝██║  ██║███████║██║     ██║  ██║██║  ██║╚██████╔╝███████╗╚██████╔╝</span>
 <span class="ascii-comment"> ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝ ╚═════╝ </span></pre>
-        <p class="lead">
+        <p class="lead" data-lang="en">
           CIO at ON*NET FIBRA, focused on technology and innovation, digital
           transformation, technology strategy, and enterprise architecture.
+        </p>
+        <p class="lead" data-lang="es">
+          CIO de ON*NET FIBRA, enfocado en tecnología e innovación, transformación
+          digital, estrategia tecnológica y arquitectura empresarial.
         </p>
       </section>
 
       <section class="section" aria-labelledby="about">
-        <h2 id="about">[About]</h2>
-        <p>
+        <h2 id="about"><span data-lang="en">[About]</span><span data-lang="es">[Acerca]</span></h2>
+        <p data-lang="en">
           I help organizations turn complex technology estates into clearer platforms,
           stronger teams, and better execution. My work sits where strategy gets real:
           systems architecture, software delivery, automation, data, security posture,
           and the operating discipline needed to make change stick.
         </p>
-        <p>
+        <p data-lang="es">
+          Ayudo a las organizaciones a convertir entornos tecnológicos complejos en
+          plataformas más claras, equipos más fuertes y mejor ejecución. Mi trabajo
+          vive donde la estrategia se vuelve real: arquitectura de sistemas, entrega
+          de software, automatización, datos, seguridad y la disciplina operativa
+          necesaria para sostener el cambio.
+        </p>
+        <p data-lang="en">
           I am especially interested in how AI changes management work, how telecom and
           infrastructure operations become more autonomous, how APIs and integrations
           reshape operating models, and how leaders can use digital tools without
           losing the human judgement that makes them useful.
         </p>
+        <p data-lang="es">
+          Me interesa especialmente cómo la IA cambia el trabajo de gestión, cómo las
+          operaciones de telecomunicaciones e infraestructura se vuelven más autónomas,
+          cómo las APIs e integraciones redefinen los modelos operativos, y cómo los
+          líderes pueden usar herramientas digitales sin perder el criterio humano que
+          las vuelve útiles.
+        </p>
       </section>
 
       <section class="section" aria-labelledby="work">
-        <h2 id="work">[Work]</h2>
-        <ul class="plain-list">
+        <h2 id="work"><span data-lang="en">[Work]</span><span data-lang="es">[Trabajo]</span></h2>
+        <ul class="plain-list" data-lang="en">
           <li>Currently CIO at ON*NET FIBRA.</li>
           <li>Technology leadership in telecom and fiber infrastructure.</li>
           <li>Enterprise architecture from SOA and APIs to microservices and cloud-native patterns.</li>
           <li>Digital transformation programs that connect customer experience, cost, quality, and execution.</li>
           <li>AI, automation, data platforms, and practical productivity systems for teams.</li>
         </ul>
+        <ul class="plain-list" data-lang="es">
+          <li>Actualmente CIO en ON*NET FIBRA.</li>
+          <li>Liderazgo tecnológico en telecomunicaciones e infraestructura de fibra.</li>
+          <li>Arquitectura empresarial desde SOA y APIs hasta microservicios y patrones cloud-native.</li>
+          <li>Programas de transformación digital que conectan experiencia de cliente, costo, calidad y ejecución.</li>
+          <li>IA, automatización, plataformas de datos y sistemas prácticos de productividad para equipos.</li>
+        </ul>
       </section>
 
       <section class="section" aria-labelledby="thinking">
-        <h2 id="thinking">[Thinking]</h2>
-        <p>
+        <h2 id="thinking"><span data-lang="en">[Thinking]</span><span data-lang="es">[Ideas]</span></h2>
+        <p data-lang="en">
           My LinkedIn activity circles around technology leadership, API and integration
           platforms, AI, digital transformation, architecture, productivity, and the
           future of infrastructure work.
         </p>
+        <p data-lang="es">
+          Mi actividad en LinkedIn gira alrededor de liderazgo tecnológico, plataformas
+          de APIs e integración, IA, transformación digital, arquitectura,
+          productividad y el futuro del trabajo en infraestructura.
+        </p>
 {posts_html}
         <div class="links" aria-label="Writing and posts">
-          <a href="https://www.linkedin.com/in/gasparolo/recent-activity/all/" rel="me">LinkedIn posts</a>
-          <a href="https://www.linkedin.com/in/gasparolo/" rel="me">LinkedIn profile</a>
+          <a href="https://www.linkedin.com/in/gasparolo/recent-activity/all/" rel="me"><span data-lang="en">LinkedIn posts</span><span data-lang="es">Posts en LinkedIn</span></a>
+          <a href="https://www.linkedin.com/in/gasparolo/" rel="me"><span data-lang="en">LinkedIn profile</span><span data-lang="es">Perfil de LinkedIn</span></a>
           <a href="https://x.com/ggasp" rel="me">X / @ggasp</a>
           <a href="https://x.com/ggasp/articles" rel="me">X Articles</a>
         </div>
@@ -404,9 +484,12 @@ def render_site(linkedin_posts: list[LinkItem], x_articles: list[LinkItem]) -> s
       </section>
 
       <section class="section contact" aria-labelledby="contact">
-        <h2 id="contact">[Contact]</h2>
-        <p>
+        <h2 id="contact"><span data-lang="en">[Contact]</span><span data-lang="es">[Contacto]</span></h2>
+        <p data-lang="en">
           The cleanest public paths are LinkedIn and X.
+        </p>
+        <p data-lang="es">
+          Los caminos públicos más directos son LinkedIn y X.
         </p>
         <div class="links">
           <a href="https://www.linkedin.com/in/gasparolo/" rel="me">LinkedIn</a>
